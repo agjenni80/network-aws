@@ -63,3 +63,12 @@ variable "bastion_instance_type" {
   default     = "t2.small"
   description = "Instance type of the bastion host"
 }
+
+variable "user" {
+  default = {
+    rhel   = "ec2-user"
+    ubuntu = "ubuntu"
+  }
+
+  description = "Bastion host user"
+}

@@ -3,8 +3,10 @@ resource "random_id" "name" {
   prefix      = "${var.name}-"
 }
 
-module "ssh-keypair-aws" {
-  source       = "git@github.com:hashicorp-modules/ssh-keypair-aws.git"
+module "ssh_keypair_aws" {
+  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?f-add-private-key-filename-output"
+  source = "../../../ssh-keypair-aws"
+
   ssh_key_name = "${random_id.name.hex}"
 }
 
@@ -21,6 +23,6 @@ module "network-aws" {
   consul_version        = "${var.consul_version}"
   vault_version         = "${var.vault_version}"
   nomad_version         = "${var.nomad_version}"
-  ssh_key_name          = "${module.ssh-keypair-aws.ssh_key_name}"
+  ssh_key_name          = "${module.ssh_keypair_aws.private_key_filename}"
   bastion_instance_type = "${var.bastion_instance_type}"
 }

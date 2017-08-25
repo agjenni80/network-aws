@@ -8,26 +8,20 @@ Creates a standard network in AWS that includes:
 - One NAT Gateway in each public subnet
 - One bastion host in each public subnet with Consul, Vault, and Nomad agents installed
 
-## Requirements
+This module requires a pre-existing AWS SSH key pair for each bastion host.
 
-This module requires a pre-existing AWS key pair to install on each bastion host.
-
-### Environment Variables
+## Environment Variables
 
 - `AWS_DEFAULT_REGION`
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 
-### Required Terraform Variables
-
-You are **required** to pass the following Terraform variables.
+## Required Terraform Variables
 
 - `name`
 - `ssh_key_name`
 
-### Optional Terraform Variables
-
-You can **optionally** pass the following Terraform variables.
+## Optional Terraform Variables
 
 - `vpc_cidr`
 - `vpc_cidrs_public`
@@ -46,5 +40,5 @@ You can **optionally** pass the following Terraform variables.
 - `subnet_private_ids`
 - `security_group_egress_id`
 - `security_group_bastion_id`
-- `bastion_username`
 - `bastion_ips_public`
+- `bastion_username`

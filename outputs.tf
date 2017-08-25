@@ -22,10 +22,10 @@ output "security_group_bastion_id" {
   value = "${aws_security_group.bastion_ssh.id}"
 }
 
-output "bastion_username" {
-  value = "${lookup(var.user, var.os)}"
-}
-
 output "bastion_ips_public" {
   value = ["${aws_instance.bastion.*.public_ip}"]
+}
+
+output "bastion_username" {
+  value = "${lookup(var.user, var.os)}"
 }

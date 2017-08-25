@@ -1,2 +1,13 @@
-.terraform
+# Compiled files
+*.tfstate
+*.tfstate.backup
 terraform.tfstate*
+
+# Module directory
+.terraform/
+
+# Terraform Variables
+*.tfvars
+
+# SSH Keys
+*.pem

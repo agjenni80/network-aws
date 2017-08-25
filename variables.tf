@@ -2,10 +2,6 @@ variable "name" {
   description = "Name"
 }
 
-variable "ssh_key_name" {
-  description = "AWS key name you will use to access the instance(s)"
-}
-
 variable "vpc_cidr" {
   default     = "10.139.0.0/16"
   description = "VPC CIDR block"
@@ -59,6 +55,10 @@ variable "nomad_version" {
   description = "Version of Nomad to use (e.g. 0.6.0 or 0.6.0+ent)"
 }
 
+variable "ssh_key_name" {
+  description = "AWS key name you will use to access the instance(s)"
+}
+
 variable "bastion_instance_type" {
   default     = "t2.small"
   description = "Instance type of the bastion host"
@@ -66,8 +66,8 @@ variable "bastion_instance_type" {
 
 variable "user" {
   default = {
-    rhel   = "ec2-user"
-    ubuntu = "ubuntu"
+    RHEL   = "ec2-user"
+    Ubuntu = "ubuntu"
   }
 
   description = "Bastion host user"

@@ -1,10 +1,11 @@
-# network-aws
+# network-aws module
 
-Creates a standard VPC with:
+Creates a standard VPC that includes:
+
 - Three public subnets
 - Three private subnets
-- One bastion host in each public subnet
 - One NAT Gateway in each public subnet
+- One bastion host in each public subnet with Consul, Vault, and Nomad agents installed
 
 ## Requirements
 
@@ -16,15 +17,28 @@ This module requires a pre-existing AWS key pair to install on each bastion host
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 
-### Terraform Variables
+### Required Terraform Variables
 
-You can pass the following Terraform variables during `terraform apply` or
+You must pass the following Terraform variables during `terraform apply` or
 in a `terraform.tfvars` file. Examples below:
 
-- `environment_name` = "network-test"
-- `os` = "RHEL"
-- `os_version` = "7.3"
-- `ssh_key_name` = "test_aws"
+- `name`
+- `os`
+- `os_version`
+- `ssh_key_name`
+
+### Optional Terraform Variables
+
+You must pass the following Terraform variables during `terraform apply` or
+in a `terraform.tfvars` file. Examples below:
+
+- `vpc_cidr`
+- `vpc_cidrs_public`
+- `vpc_cidrs_private`
+- `consul_version`
+- `vault_version`
+- `nomad_version`
+- `bastion_instance_type`
 
 ## Outputs
 
@@ -35,36 +49,3 @@ in a `terraform.tfvars` file. Examples below:
 - `security_group_bastion_id`
 - `bastion_username`
 - `bastion_ips_public`
-
-## Usage
-
-```
-variable "environment_name" {
-  default = "network-test"
-  description = "Environment Name"
-}
-
-variable "os" {
-  # case sensitive for AMI lookup
-  default = "RHEL"
-  description = "Operating System to use ie RHEL or Ubuntu"
-}
-
-variable "os_version" {
-  default = "7.3"
-  description = "Operating System version to use ie 7.3 (for RHEL) or 16.04 (for Ubuntu)"
-}
-
-variable "ssh_key_name" {
-  default = "test_aws"
-  description = "Pre-existing AWS key name you will use to access the instance(s)"
-}
-
-module "network-aws" {
-  source           = "git@github.com:hashicorp-modules/network-aws.git"
-  environment_name = "${var.environment_name}"
-  os               = "${var.os}"
-  os_version       = "${var.os_version}"
-  ssh_key_name     = "${module.ssh-keypair-aws.ssh_key_name}"
-}
-```

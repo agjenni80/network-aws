@@ -1,0 +1,11 @@
+name                  = "advanced"
+vpc_cidr              = "172.19.0.0/16"
+vpc_cidrs_public      = ["172.19.0.0/20", "172.19.16.0/20", "172.19.32.0/20",]
+vpc_cidrs_private     = ["172.19.48.0/20", "172.19.64.0/20", "172.19.80.0/20",]
+os                    = "Ubuntu"
+os_version            = "16.04"
+consul_version        = "0.9.2"
+vault_version         = "0.8.1"
+nomad_version         = "0.6.0"
+ssh_key_name          = "advanced"
+bastion_instance_type = "t2.small"

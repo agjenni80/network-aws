@@ -23,7 +23,7 @@ output "security_group_bastion_id" {
 }
 
 output "bastion_username" {
-  value = "${lookup(var.user,var.os)}"
+  value = "${lookup(var.user, var.os)}"
 }
 
 output "bastion_ips_public" {

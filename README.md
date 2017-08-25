@@ -1,7 +1,8 @@
 # network-aws module
 
-Creates a standard VPC that includes:
+Creates a standard network in AWS that includes:
 
+- One VPC
 - Three public subnets
 - Three private subnets
 - One NAT Gateway in each public subnet
@@ -19,22 +20,20 @@ This module requires a pre-existing AWS key pair to install on each bastion host
 
 ### Required Terraform Variables
 
-You must pass the following Terraform variables during `terraform apply` or
-in a `terraform.tfvars` file. Examples below:
+You are **required** to pass the following Terraform variables.
 
 - `name`
-- `os`
-- `os_version`
 - `ssh_key_name`
 
 ### Optional Terraform Variables
 
-You must pass the following Terraform variables during `terraform apply` or
-in a `terraform.tfvars` file. Examples below:
+You can **optionally** pass the following Terraform variables.
 
 - `vpc_cidr`
 - `vpc_cidrs_public`
 - `vpc_cidrs_private`
+- `os`
+- `os_version`
 - `consul_version`
 - `vault_version`
 - `nomad_version`

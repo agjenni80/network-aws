@@ -104,7 +104,7 @@ resource "aws_route_table_association" "private" {
 
 data "aws_ami" "hashistack" {
   most_recent = true
-  owners      = ["362381645759"] # hc-se-demos Hashicorp Demos New Account
+  owners      = ["362381645759"] # hc-se-demos Hashicorp SE Demos Account
 
   filter {
     name   = "tag:System"

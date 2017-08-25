@@ -2,6 +2,7 @@ variable "name"                  { }
 variable "vpc_cidr"              { }
 variable "vpc_cidrs_public"      { }
 variable "vpc_cidrs_private"     { }
+variable "environment"           { }
 variable "os"                    { }
 variable "os_version"            { }
 variable "consul_version"        { }

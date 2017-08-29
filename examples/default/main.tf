@@ -4,14 +4,14 @@ resource "random_id" "name" {
 }
 
 module "ssh_keypair_aws" {
-  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?f-add-private-key-filename-output"
+  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
   source = "../../../ssh-keypair-aws"
 
   ssh_key_name = "${random_id.name.hex}"
 }
 
 module "network_aws" {
-  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-update-bastion"
+  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
   source = "../../../network-aws"
 
   name         = "${var.name}"

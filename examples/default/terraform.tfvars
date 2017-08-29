@@ -1,1 +1,1 @@
-name = "jb-test"
+name = "default-test"

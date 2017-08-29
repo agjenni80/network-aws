@@ -14,11 +14,11 @@ output "subnet_private_ids" {
   value = ["${aws_subnet.private.*.id}"]
 }
 
-output "security_group_egress_id" {
+output "security_group_egress_public_id" {
   value = "${aws_security_group.egress_public.id}"
 }
 
-output "security_group_bastion_id" {
+output "security_group_bastion_ssh_id" {
   value = "${aws_security_group.bastion_ssh.id}"
 }
 

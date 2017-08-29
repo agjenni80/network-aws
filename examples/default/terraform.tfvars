@@ -1,1 +1,1 @@
-name = "default-test"
+name = "default"

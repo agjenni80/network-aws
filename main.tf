@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "${var.name}"
+    Name = "${var.environment}"
   }
 }
 
@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.name}-public-${count.index}"
+    Name = "${var.environment}-public-${count.index}"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    Name = "${var.name}"
+    Name = "${var.environment}"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "${var.name}-public"
+    Name = "${var.environment}-public"
   }
 }
 
@@ -55,13 +55,13 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_eip" "nat" {
-  count = "${length(var.vpc_cidrs_public)}"
+  count = "${var.nat_count ? var.nat_count : length(var.vpc_cidrs_public)}"
 
   vpc = true
 }
 
 resource "aws_nat_gateway" "nat" {
-  count = "${length(var.vpc_cidrs_public)}"
+  count = "${var.nat_count ? var.nat_count : length(var.vpc_cidrs_public)}"
 
   allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
@@ -76,7 +76,7 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.name}-private-${count.index}"
+    Name = "${var.environment}-private-${count.index}"
   }
 }
 
@@ -91,7 +91,7 @@ resource "aws_route_table" "private_subnet" {
   }
 
   tags {
-    Name = "${var.name}-private-subnet-${count.index}"
+    Name = "${var.environment}-private-subnet-${count.index}"
   }
 }
 
@@ -112,13 +112,33 @@ data "aws_ami" "hashistack" {
   }
 
   filter {
-    name   = "tag:Environment"
-    values = ["${var.environment}"]
+    name   = "tag:Product"
+    values = ["HashiStack"]
+  }
+
+  filter {
+    name   = "tag:Release-Version"
+    values = ["${var.release_version}"]
+  }
+
+  filter {
+    name   = "tag:Consul-Version"
+    values = ["${var.consul_version}"]
+  }
+
+  filter {
+    name   = "tag:Vault-Version"
+    values = ["${var.vault_version}"]
+  }
+
+  filter {
+    name   = "tag:Nomad-Version"
+    values = ["${var.nomad_version}"]
   }
 
   filter {
     name   = "tag:OS"
-    values = ["${var.os}"]
+    values = ["${lower(var.os)}"]
   }
 
   filter {
@@ -135,26 +155,22 @@ data "aws_ami" "hashistack" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+}
 
-  filter {
-    name   = "tag:Consul-Version"
-    values = ["${var.consul_version}"]
-  }
+data "template_file" "bastion_init" {
+  count    = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
+  template = "${file("${path.module}/templates/init-systemd.sh.tpl")}"
 
-  filter {
-    name   = "tag:Nomad-Version"
-    values = ["${var.nomad_version}"]
-  }
-
-  filter {
-    name   = "tag:Vault-Version"
-    values = ["${var.vault_version}"]
+  vars = {
+    consul_sg_id = "${var.environment}"
+    hostname     = "${var.environment}-bastion-${count.index}"
+    join_consul  = "${var.join_consul}"
   }
 }
 
 resource "aws_security_group" "bastion_ssh" {
-  name        = "${var.name}-bastion-ssh"
-  description = "${var.name}-bastion-ssh"
+  name        = "${var.environment}-bastion-ssh"
+  description = "${var.environment}-bastion-ssh"
   vpc_id      = "${aws_vpc.main.id}"
 }
 
@@ -168,8 +184,8 @@ resource "aws_security_group_rule" "bastion_ssh" {
 }
 
 resource "aws_security_group" "egress_public" {
-  name        = "${var.name}-egress_public"
-  description = "${var.name}-egress_public"
+  name        = "${var.environment}-egress-public"
+  description = "${var.environment}-egress-public"
   vpc_id      = "${aws_vpc.main.id}"
 }
 
@@ -183,12 +199,13 @@ resource "aws_security_group_rule" "egress_public" {
 }
 
 resource "aws_instance" "bastion" {
-  count = "${length(var.vpc_cidrs_public)}"
+  count = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
   ami           = "${data.aws_ami.hashistack.id}"
-  instance_type = "${var.bastion_instance_type}"
+  instance_type = "${var.instance_type}"
   key_name      = "${var.ssh_key_name}"
-  subnet_id     = "${element(aws_subnet.public.*.id,count.index)}"
+  user_data     = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
+  subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
 
   vpc_security_group_ids = [
     "${aws_security_group.egress_public.id}",
@@ -196,6 +213,7 @@ resource "aws_instance" "bastion" {
   ]
 
   tags {
-    Name = "${var.name}-bastion-${count.index}"
+    Name = "${var.environment}-bastion-${count.index}"
+    Environment-Name = "${var.environment}"
   }
 }

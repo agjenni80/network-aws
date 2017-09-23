@@ -7,7 +7,6 @@ Creates a standard network in AWS that includes:
 - Three private subnets
 - One NAT Gateway in each public subnet
 - One bastion host in each public subnet with Consul, Vault, and Nomad agents installed
-- AWS SSH keypair with RSA private key downloaded locally
 
 This module requires a pre-existing AWS SSH key pair for each bastion host.
 
@@ -19,17 +18,20 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 
 ## Input Variables
 
-- `name` - [Required] Name for network resources.
+- `environment` - [Required] Environment name.
 - `vpc_cidr` - [Optional] VPC CIDR block.
 - `vpc_cidrs_public` - [Optional] VPC CIDR blocks for public subnets.
 - `vpc_cidrs_private` - [Optional] VPC CIDR blocks for private subnets.
-- `environment` - [Optional] Environment AMI tag (e.g. development, stage, or production).
-- `os` - [Optional] Operating System to use (e.g. RHEL or Ubuntu - case sensitive).
+- `release_version` - [Optional] Release version tag to use (e.g. 0.1.0, 0.1.0-rc1, 0.1.0-beta1, 0.1.0-dev1).
+- `consul_version` - [Optional] Consul version tag to use (e.g. 0.9.2 or 0.9.2-ent).
+- `vault_version` - [Optional] Vault version tag to use (e.g. 0.8.1 or 0.8.1-ent).
+- `nomad_version` - [Optional] Nomad version tag to use (e.g. 0.6.0 or 0.6.0-ent).
+- `os` - [Optional] Operating System to use (e.g. RHEL or Ubuntu).
 - `os_version` - [Optional] Operating System version to use (e.g. 7.3 for RHEL or 16.04 for Ubuntu).
-- `consul_version` - [Optional] Version of Consul to use (e.g. 0.9.2 or 0.9.2+ent).
-- `vault_version` - [Optional] Version of Vault to use (e.g. 0.8.1 or 0.8.1+ent).
-- `nomad_version` - [Optional] Version of Nomad to use (e.g. 0.6.0 or 0.6.0+ent).
-- `bastion_instance_type` - [Optional]
+- `nat_count` - [Optional] Number of NAT gateways to provision across public subnets, defaults to public subnet count.
+- `bastion_count` - [Optional] Number of bastion hosts to provision across public subnets, defaults to public subnet count.
+- `bastion_instance_type` - [Optional] Instance type of the bastion host.
+- `join_consul` - [Optional] Join a Consul cluster with the local Consul agent.
 - `ssh_key_name` - [Required] Name of AWS keypair that will be created.
 - `user` - [Optional] Map of SSH users.
 

@@ -49,7 +49,7 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 ## Module Dependencies
 
 - [AWS SSH Keypair Terraform Module](https://github.com/hashicorp-modules/ssh-keypair-aws)
-- [TLS Private Key Terraform Module](https://github.com/hashicorp-modules/tls-private-key)
+  - [TLS Private Key Terraform Module](https://github.com/hashicorp-modules/tls-private-key)
 
 ## Authors
 

@@ -27,5 +27,5 @@ output "bastion_ips_public" {
 }
 
 output "bastion_username" {
-  value = "${lookup(var.user, var.os)}"
+  value = "${lookup(var.users, var.os)}"
 }

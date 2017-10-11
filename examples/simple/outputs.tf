@@ -10,7 +10,7 @@ Run the below command to add this private key to the list maintained by ssh-agen
 
 The public part of the key loaded into the agent ("public_key_openssh" output) has been placed on the target system in ~/.ssh/authorized_keys.
 
-To SSH into a Bastion host using this private key, run one of the below commands.
+Use the below command(s) to SSH into a Bastion host using this private key.
 
   ${join("\n  ", formatlist("ssh -A -i %s %s@%s", module.ssh_keypair_aws.private_key_filename, module.network_aws.bastion_username, module.network_aws.bastion_ips_public))}
 
@@ -18,6 +18,26 @@ To force the generation of a new key, the private key instance can be "tainted" 
 
   terraform taint -module=ssh_keypair_aws.tls_private_key tls_private_key.main
 README
+}
+
+output "private_key_filename" {
+  value = "${module.ssh_keypair_aws.private_key_filename}"
+}
+
+output "private_key_pem" {
+  value = "${module.ssh_keypair_aws.private_key_pem}"
+}
+
+output "public_key_pem" {
+  value = "${module.ssh_keypair_aws.public_key_pem}"
+}
+
+output "public_key_openssh" {
+  value = "${module.ssh_keypair_aws.public_key_openssh}"
+}
+
+output "ssh_key_name" {
+  value = "${module.ssh_keypair_aws.ssh_key_name}"
 }
 
 output "vpc_cidr_block" {
@@ -44,30 +64,10 @@ output "security_group_bastion_id" {
   value = "${module.network_aws.security_group_bastion_ssh_id}"
 }
 
-output "bastion_username" {
-  value = "${module.network_aws.bastion_username}"
-}
-
 output "bastion_ips_public" {
   value = "${module.network_aws.bastion_ips_public}"
 }
 
-output "private_key_filename" {
-  value = "${module.ssh_keypair_aws.private_key_filename}"
-}
-
-output "private_key_pem" {
-  value = "${module.ssh_keypair_aws.private_key_pem}"
-}
-
-output "public_key_pem" {
-  value = "${module.ssh_keypair_aws.public_key_pem}"
-}
-
-output "public_key_openssh" {
-  value = "${module.ssh_keypair_aws.public_key_openssh}"
-}
-
-output "ssh_key_name" {
-  value = "${module.ssh_keypair_aws.ssh_key_name}"
+output "bastion_username" {
+  value = "${module.network_aws.bastion_username}"
 }

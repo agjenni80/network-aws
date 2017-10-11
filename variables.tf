@@ -13,6 +13,11 @@ variable "vpc_cidrs_public" {
   description = "VPC CIDR blocks for public subnets."
 }
 
+variable "nat_count" {
+  default     = "0"
+  description = "Number of NAT gateways to provision across public subnets, defaults to public subnet count."
+}
+
 variable "vpc_cidrs_private" {
   type        = "list"
   default     = [ "10.139.11.0/24", "10.139.12.0/24", "10.139.13.0/24",]
@@ -49,31 +54,26 @@ variable "os_version" {
   description = "Operating System version (e.g. 7.3 for RHEL or 16.04 for Ubuntu)."
 }
 
-variable "nat_count" {
-  default     = "0"
-  description = "Number of NAT gateways to provision across public subnets, defaults to public subnet count."
-}
-
 variable "bastion_count" {
   default     = "0"
   description = "Number of bastion hosts to provision across public subnets, defaults to public subnet count."
 }
 
-variable "instance_type" {
-  default     = "t2.small"
-  description = "AWS instance type for bastion host (e.g. m4.large)."
+variable "bastion_connect" {
+  default     = "false"
+  description = "Determines if the Bastion host should attempt join a Consul cluster & configure the Vault & Nomad CLIs to connect to existing clusters."
 }
 
-variable "join_consul" {
-  default     = "true"
-  description = "Join a Consul cluster with the local Consul agent."
+variable "bastion_instance" {
+  default     = "t2.small"
+  description = "AWS instance type for bastion host (e.g. m4.large)."
 }
 
 variable "ssh_key_name" {
   description = "AWS key name you will use to access the instance(s)."
 }
 
-variable "user" {
+variable "users" {
   default = {
     RHEL   = "ec2-user"
     Ubuntu = "ubuntu"

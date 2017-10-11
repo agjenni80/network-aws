@@ -7,8 +7,8 @@ local_ipv4="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
 echo "Set hostname"
 hostnamectl set-hostname "${hostname}"
 
-if [ "${join_consul}" = false ] ; then
-  echo "Exit early if there is no Consul cluster to join"
+if [ "${connect}" = false ] ; then
+  echo "Exit early if there is no Consul cluster to connect to"
   exit 0
 fi
 

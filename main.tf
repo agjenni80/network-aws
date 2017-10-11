@@ -162,9 +162,8 @@ data "template_file" "bastion_init" {
   template = "${file("${path.module}/templates/init-systemd.sh.tpl")}"
 
   vars = {
-    consul_sg_id = "${var.environment}"
-    hostname     = "${var.environment}-bastion-${count.index}"
-    join_consul  = "${var.join_consul}"
+    hostname = "${var.environment}-bastion-${count.index}"
+    connect  = "${var.bastion_connect}"
   }
 }
 
@@ -202,7 +201,7 @@ resource "aws_instance" "bastion" {
   count = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
   ami           = "${data.aws_ami.hashistack.id}"
-  instance_type = "${var.instance_type}"
+  instance_type = "${var.bastion_instance}"
   key_name      = "${var.ssh_key_name}"
   user_data     = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"

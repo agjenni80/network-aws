@@ -4,20 +4,21 @@ resource "random_id" "name" {
 }
 
 module "ssh_keypair_aws" {
-  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
   source = "../../../ssh-keypair-aws"
+  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
 
   ssh_key_name = "${random_id.name.hex}"
   rsa_bits     = "${var.rsa_bits}"
 }
 
 module "network_aws" {
-  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
   source = "../../../network-aws"
+  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
 
   environment       = "${var.environment}"
   vpc_cidr          = "${var.vpc_cidr}"
   vpc_cidrs_public  = "${var.vpc_cidrs_public}"
+  nat_count         = "${var.nat_count}"
   vpc_cidrs_private = "${var.vpc_cidrs_private}"
   release_version   = "${var.release_version}"
   consul_version    = "${var.consul_version}"
@@ -25,8 +26,8 @@ module "network_aws" {
   nomad_version     = "${var.nomad_version}"
   os                = "${var.os}"
   os_version        = "${var.os_version}"
-  nat_count         = "${var.nat_count}"
   bastion_count     = "${var.bastion_count}"
-  instance_type     = "${var.instance_type}"
+  bastion_connect   = "${var.bastion_connect}"
+  bastion_instance  = "${var.bastion_instance}"
   ssh_key_name      = "${module.ssh_keypair_aws.ssh_key_name}"
 }

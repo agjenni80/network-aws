@@ -167,14 +167,14 @@ data "template_file" "bastion_init" {
   }
 }
 
-resource "aws_security_group" "bastion_ssh" {
-  name        = "${var.environment}-bastion-ssh"
-  description = "${var.environment}-bastion-ssh"
+resource "aws_security_group" "bastion" {
+  name        = "${var.environment}-bastion"
+  description = "Security Group for Bastion hosts"
   vpc_id      = "${aws_vpc.main.id}"
 }
 
-resource "aws_security_group_rule" "bastion_ssh" {
-  security_group_id = "${aws_security_group.bastion_ssh.id}"
+resource "aws_security_group_rule" "ssh" {
+  security_group_id = "${aws_security_group.bastion.id}"
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 22
@@ -182,14 +182,8 @@ resource "aws_security_group_rule" "bastion_ssh" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group" "egress_public" {
-  name        = "${var.environment}-egress-public"
-  description = "${var.environment}-egress-public"
-  vpc_id      = "${aws_vpc.main.id}"
-}
-
 resource "aws_security_group_rule" "egress_public" {
-  security_group_id = "${aws_security_group.egress_public.id}"
+  security_group_id = "${aws_security_group.bastion.id}"
   type              = "egress"
   protocol          = "-1"
   from_port         = 0
@@ -207,8 +201,7 @@ resource "aws_instance" "bastion" {
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.egress_public.id}",
-    "${aws_security_group.bastion_ssh.id}",
+    "${aws_security_group.bastion.id}",
   ]
 
   tags {

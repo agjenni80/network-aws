@@ -20,7 +20,7 @@ variable "nat_count" {
 
 variable "vpc_cidrs_private" {
   type        = "list"
-  default     = [ "10.139.11.0/24", "10.139.12.0/24", "10.139.13.0/24",]
+  default     = ["10.139.11.0/24", "10.139.12.0/24", "10.139.13.0/24",]
   description = "VPC CIDR blocks for private subnets."
 }
 

@@ -56,12 +56,8 @@ output "subnet_private_ids" {
   value = "${module.network_aws.subnet_private_ids}"
 }
 
-output "security_group_egress_id" {
-  value = "${module.network_aws.security_group_egress_public_id}"
-}
-
-output "security_group_bastion_id" {
-  value = "${module.network_aws.security_group_bastion_ssh_id}"
+output "bastion_security_group" {
+  value = "${module.network_aws.bastion_security_group}"
 }
 
 output "bastion_ips_public" {

@@ -1,6 +1,6 @@
 resource "random_id" "name" {
   byte_length = 4
-  prefix      = "${var.environment}-"
+  prefix      = "${var.name}-"
 }
 
 module "ssh_keypair_aws" {
@@ -15,7 +15,7 @@ module "network_aws" {
   source = "../../../network-aws"
   # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
 
-  environment       = "${var.environment}"
+  name              = "${var.name}"
   vpc_cidr          = "${var.vpc_cidr}"
   vpc_cidrs_public  = "${var.vpc_cidrs_public}"
   nat_count         = "${var.nat_count}"

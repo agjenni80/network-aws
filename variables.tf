@@ -1,5 +1,6 @@
-variable "environment" {
-  description = "Environment name."
+variable "name" {
+  default     = "network-aws"
+  description = "Name for resources, defaults to \"network-aws\"."
 }
 
 variable "vpc_cidr" {

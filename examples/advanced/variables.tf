@@ -1,4 +1,4 @@
-variable "environment"       { }
+variable "name"              { }
 variable "rsa_bits"          { }
 variable "vpc_cidr"          { }
 variable "vpc_cidrs_public"  { type = "list" }

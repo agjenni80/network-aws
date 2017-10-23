@@ -5,23 +5,23 @@ instance_id="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
 local_ipv4="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
 
 echo "Set hostname"
-hostnamectl set-hostname "${hostname}"
+hostnamectl set-hostname "${hostname}-$${instance_id}"
 
 if [ "${connect}" = false ] ; then
   echo "Exit early if there is no Consul cluster to connect to"
   exit 0
 fi
 
-echo "Configure Consul"
+echo "Configure Consul client"
 cat <<EOF >/etc/consul.d/consul-client.json
 {
-  "datacenter": "${environment}",
+  "datacenter": "${name}",
   "advertise_addr": "$${local_ipv4}",
   "data_dir": "/opt/consul/data",
   "client_addr": "0.0.0.0",
   "log_level": "INFO",
   "ui": true,
-  "retry_join": ["provider=aws tag_key=Environment-Name tag_value=${environment}"]
+  "retry_join": ["provider=aws tag_key=Consul-Auto-Join tag_value=${name}"]
 }
 EOF
 

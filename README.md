@@ -18,7 +18,7 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 
 ## Input Variables
 
-- `environment`: [Required] Environment name.
+- `name`: [Optional] Name for resources, defaults to \"network-aws\".
 - `vpc_cidr`: [Optional] VPC CIDR block.
 - `vpc_cidrs_public`: [Optional] VPC CIDR blocks for public subnets.
 - `nat_count`: [Optional] Number of NAT gateways to provision across public subnets, defaults to public subnet count.
@@ -47,6 +47,7 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 
 ## Module Dependencies
 
+- [AWS Consul Client Ports Terraform Module](https://github.com/hashicorp-modules/consul-client-ports-aws)
 - [AWS SSH Keypair Terraform Module](https://github.com/hashicorp-modules/ssh-keypair-aws)
   - [TLS Private Key Terraform Module](https://github.com/hashicorp-modules/tls-private-key)
 

@@ -1,4 +1,4 @@
-environment       = "network-aws-advanced"
+name              = "network-aws-advanced"
 rsa_bits          = "3072"
 vpc_cidr          = "172.19.0.0/16"
 vpc_cidrs_public  = ["172.19.0.0/20", "172.19.16.0/20", "172.19.32.0/20",]

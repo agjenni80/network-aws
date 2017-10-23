@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "${var.environment}"
+    Name = "${var.name}"
   }
 }
 
@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.environment}-public-${count.index}"
+    Name = "${var.name}-public-${count.index}"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    Name = "${var.environment}"
+    Name = "${var.name}"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "${var.environment}-public"
+    Name = "${var.name}-public"
   }
 }
 
@@ -76,7 +76,7 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.environment}-private-${count.index}"
+    Name = "${var.name}-private-${count.index}"
   }
 }
 
@@ -91,7 +91,7 @@ resource "aws_route_table" "private_subnet" {
   }
 
   tags {
-    Name = "${var.environment}-private-subnet-${count.index}"
+    Name = "${var.name}-private-subnet-${count.index}"
   }
 }
 
@@ -100,6 +100,13 @@ resource "aws_route_table_association" "private" {
 
   subnet_id      = "${element(aws_subnet.private.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.private_subnet.*.id,count.index)}"
+}
+
+module "consul_auto_join_instance_role" {
+  source = "../consul-auto-join-instance-role-aws"
+  # source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
+
+  name = "${var.name}"
 }
 
 data "aws_ami" "hashistack" {
@@ -162,13 +169,23 @@ data "template_file" "bastion_init" {
   template = "${file("${path.module}/templates/init-systemd.sh.tpl")}"
 
   vars = {
-    hostname = "${var.environment}-bastion-${count.index}"
+    hostname = "${var.name}-bastion-${count.index}"
     connect  = "${var.bastion_connect}"
+    name     = "${var.name}"
   }
 }
 
+module "bastion_consul_client_sg" {
+  source = "../consul-client-ports-aws"
+  # source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
+
+  name        = "${var.name}"
+  vpc_id      = "${aws_vpc.main.id}"
+  cidr_blocks = ["${var.vpc_cidr}"]
+}
+
 resource "aws_security_group" "bastion" {
-  name        = "${var.environment}-bastion"
+  name        = "${var.name}-bastion"
   description = "Security Group for Bastion hosts"
   vpc_id      = "${aws_vpc.main.id}"
 }
@@ -194,18 +211,20 @@ resource "aws_security_group_rule" "egress_public" {
 resource "aws_instance" "bastion" {
   count = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
-  ami           = "${data.aws_ami.hashistack.id}"
-  instance_type = "${var.bastion_instance}"
-  key_name      = "${var.ssh_key_name}"
-  user_data     = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
-  subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
+  iam_instance_profile = "${module.consul_auto_join_instance_role.instance_profile_id}"
+  ami                  = "${data.aws_ami.hashistack.id}"
+  instance_type        = "${var.bastion_instance}"
+  key_name             = "${var.ssh_key_name}"
+  user_data            = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
+  subnet_id            = "${element(aws_subnet.public.*.id, count.index)}"
 
   vpc_security_group_ids = [
+    "${module.bastion_consul_client_sg.consul_client_sg_id}",
     "${aws_security_group.bastion.id}",
   ]
 
   tags {
-    Name = "${var.environment}-bastion-${count.index}"
-    Environment-Name = "${var.environment}"
+    Name             = "${var.name}-bastion-${count.index}"
+    Consul-Auto-Join = "${var.name}"
   }
 }

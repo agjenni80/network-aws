@@ -32,7 +32,8 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 - `bastion_count`: [Optional] Number of bastion hosts to provision across public subnets, defaults to public subnet count.
 - `bastion_connect`: [Optional] Determines if the Bastion host should attempt join a Consul cluster & configure the Vault & Nomad CLIs to connect to existing clusters.
 - `bastion_instance`: [Optional] Instance type of the bastion host.
-- `ssh_key_name`: [Required] Name of AWS keypair that will be created.
+- `instance_profile`: [Required] AWS instance profile for Consul Auto-Join.
+- `ssh_key_name`: [Required] AWS key name you will use to access the instance(s).
 - `user`: [Optional] Map of SSH users.
 
 ## Outputs

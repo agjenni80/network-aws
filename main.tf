@@ -102,13 +102,6 @@ resource "aws_route_table_association" "private" {
   route_table_id = "${element(aws_route_table.private_subnet.*.id,count.index)}"
 }
 
-module "consul_auto_join_instance_role" {
-  source = "../consul-auto-join-instance-role-aws"
-  # source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
-
-  name = "${var.name}"
-}
-
 data "aws_ami" "hashistack" {
   most_recent = true
   owners      = ["362381645759"] # hc-se-demos Hashicorp SE Demos Account
@@ -179,7 +172,7 @@ module "bastion_consul_client_sg" {
   source = "../consul-client-ports-aws"
   # source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
 
-  name        = "${var.name}"
+  name        = "${var.name}-consul-client"
   vpc_id      = "${aws_vpc.main.id}"
   cidr_blocks = ["${var.vpc_cidr}"]
 }
@@ -211,7 +204,7 @@ resource "aws_security_group_rule" "egress_public" {
 resource "aws_instance" "bastion" {
   count = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
-  iam_instance_profile = "${module.consul_auto_join_instance_role.instance_profile_id}"
+  iam_instance_profile = "${var.instance_profile}"
   ami                  = "${data.aws_ami.hashistack.id}"
   instance_type        = "${var.bastion_instance}"
   key_name             = "${var.ssh_key_name}"

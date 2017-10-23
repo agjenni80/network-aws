@@ -70,6 +70,10 @@ variable "bastion_instance" {
   description = "AWS instance type for bastion host (e.g. m4.large)."
 }
 
+variable "instance_profile" {
+  description = "AWS instance profile for Consul Auto-Join."
+}
+
 variable "ssh_key_name" {
   description = "AWS key name you will use to access the instance(s)."
 }

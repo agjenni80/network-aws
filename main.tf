@@ -22,7 +22,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.name}-public-${count.index}"
+    Name = "${var.name}-public-${count.index + 1}"
   }
 }
 
@@ -55,13 +55,13 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_eip" "nat" {
-  count = "${var.nat_count ? var.nat_count : length(var.vpc_cidrs_public)}"
+  count = "${var.nat_count != "-1" ? var.nat_count : length(var.vpc_cidrs_public)}"
 
   vpc = true
 }
 
 resource "aws_nat_gateway" "nat" {
-  count = "${var.nat_count ? var.nat_count : length(var.vpc_cidrs_public)}"
+  count = "${var.nat_count != "-1" ? var.nat_count : length(var.vpc_cidrs_public)}"
 
   allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
@@ -76,7 +76,7 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.name}-private-${count.index}"
+    Name = "${var.name}-private-${count.index + 1}"
   }
 }
 
@@ -91,7 +91,7 @@ resource "aws_route_table" "private_subnet" {
   }
 
   tags {
-    Name = "${var.name}-private-subnet-${count.index}"
+    Name = "${var.name}-private-subnet-${count.index + 1}"
   }
 }
 
@@ -100,6 +100,14 @@ resource "aws_route_table_association" "private" {
 
   subnet_id      = "${element(aws_subnet.private.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.private_subnet.*.id,count.index)}"
+}
+
+module "consul_auto_join_instance_role" {
+  source = "../consul-auto-join-instance-role-aws"
+  # source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
+
+  provision = "${var.bastion_count != "0" ? "true" : "false"}"
+  name      = "${var.name}"
 }
 
 data "aws_ami" "hashistack" {
@@ -157,14 +165,26 @@ data "aws_ami" "hashistack" {
   }
 }
 
+module "ssh_keypair_aws" {
+  source = "../ssh-keypair-aws"
+  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
+
+  # This doesn't set the key_name on aws_instance.bastion when uncommented,
+  # there always seems to be 1.) a dirty plan that fails to set the value on apply
+  # or 2.) the plan fails because of a count interpolation error in the tls-private-key
+  # module. Commenting this out just creates an ssh_keypair regardless if one is passed in,
+  # so not too big of a deal, worst case scenario is you have an un-used keypair.
+  # provision = "${var.ssh_key_name == "" && var.bastion_count != "0" ? "true" : "false"}"
+  name      = "${var.name}"
+}
+
 data "template_file" "bastion_init" {
-  count    = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
+  count    = "${var.bastion_count != "-1" ? var.bastion_count : length(var.vpc_cidrs_public)}"
   template = "${file("${path.module}/templates/init-systemd.sh.tpl")}"
 
   vars = {
-    hostname = "${var.name}-bastion-${count.index}"
-    connect  = "${var.bastion_connect}"
-    name     = "${var.name}"
+    hostname  = "${var.name}-bastion-${count.index + 1}"
+    user_data = "${var.user_data != "" ? var.user_data : "echo No custom user_data"}"
   }
 }
 
@@ -172,18 +192,23 @@ module "bastion_consul_client_sg" {
   source = "../consul-client-ports-aws"
   # source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
 
+  provision   = "${var.bastion_count != "0" ? "true" : "false"}"
   name        = "${var.name}-consul-client"
   vpc_id      = "${aws_vpc.main.id}"
   cidr_blocks = ["${var.vpc_cidr}"]
 }
 
 resource "aws_security_group" "bastion" {
+  count = "${var.bastion_count != "0" ? 1 : 0}"
+
   name        = "${var.name}-bastion"
   description = "Security Group for Bastion hosts"
   vpc_id      = "${aws_vpc.main.id}"
 }
 
 resource "aws_security_group_rule" "ssh" {
+  count = "${var.bastion_count != "0" ? 1 : 0}"
+
   security_group_id = "${aws_security_group.bastion.id}"
   type              = "ingress"
   protocol          = "tcp"
@@ -193,6 +218,8 @@ resource "aws_security_group_rule" "ssh" {
 }
 
 resource "aws_security_group_rule" "egress_public" {
+  count = "${var.bastion_count != "0" ? 1 : 0}"
+
   security_group_id = "${aws_security_group.bastion.id}"
   type              = "egress"
   protocol          = "-1"
@@ -202,12 +229,12 @@ resource "aws_security_group_rule" "egress_public" {
 }
 
 resource "aws_instance" "bastion" {
-  count = "${var.bastion_count ? var.bastion_count : length(var.vpc_cidrs_public)}"
+  count = "${var.bastion_count != "-1" ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
-  iam_instance_profile = "${var.instance_profile}"
+  iam_instance_profile = "${var.instance_profile != "" ? var.instance_profile : module.consul_auto_join_instance_role.instance_profile_id}"
   ami                  = "${data.aws_ami.hashistack.id}"
-  instance_type        = "${var.bastion_instance}"
-  key_name             = "${var.ssh_key_name}"
+  instance_type        = "${var.instance_type}"
+  key_name             = "${var.ssh_key_name != "" ? var.ssh_key_name : module.ssh_keypair_aws.name}"
   user_data            = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
   subnet_id            = "${element(aws_subnet.public.*.id, count.index)}"
 
@@ -217,7 +244,7 @@ resource "aws_instance" "bastion" {
   ]
 
   tags {
-    Name             = "${var.name}-bastion-${count.index}"
+    Name             = "${var.name}-bastion-${count.index + 1}"
     Consul-Auto-Join = "${var.name}"
   }
 }

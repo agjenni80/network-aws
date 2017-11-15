@@ -11,5 +11,4 @@ variable "nomad_version"     { }
 variable "os"                { }
 variable "os_version"        { }
 variable "bastion_count"     { }
-variable "bastion_connect"   { }
-variable "bastion_instance"  { }
+variable "instance_type"     { }

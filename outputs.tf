@@ -25,3 +25,27 @@ output "bastion_ips_public" {
 output "bastion_username" {
   value = "${lookup(var.users, var.os)}"
 }
+
+output "private_key_name" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.private_key_name : ""}"
+}
+
+output "private_key_filename" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.private_key_filename : ""}"
+}
+
+output "private_key_pem" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.private_key_pem : ""}"
+}
+
+output "public_key_pem" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.public_key_pem : ""}"
+}
+
+output "public_key_openssh" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.public_key_openssh : ""}"
+}
+
+output "ssh_key_name" {
+  value = "${var.ssh_key_name == "" && var.bastion_count != "0" ? module.ssh_keypair_aws.name : var.ssh_key_name}"
+}

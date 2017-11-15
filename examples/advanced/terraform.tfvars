@@ -11,5 +11,4 @@ nomad_version     = "0.6.2" # Nomad version tag (e.g. 0.6.2 or 0.6.2-ent) - http
 os                = "Ubuntu" # OS (e.g. RHEL, Ubuntu)
 os_version        = "16.04" # OS Version (e.g. 7.3 for RHEL, 16.04 for Ubuntu)
 bastion_count     = "1" # Number of bastion hosts to provision across public subnets, defaults to public subnet count.
-bastion_connect   = "false" # Determines if the Bastion host should attempt join a Consul cluster & configure the Vault & Nomad CLIs to connect to existing clusters
-bastion_instance  = "t2.small"
+instance_type     = "t2.small"

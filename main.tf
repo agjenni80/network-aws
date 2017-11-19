@@ -103,8 +103,7 @@ resource "aws_route_table_association" "private" {
 }
 
 module "consul_auto_join_instance_role" {
-  source = "../consul-auto-join-instance-role-aws"
-  # source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
+  source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
 
   provision = "${var.bastion_count != "0" ? "true" : "false"}"
   name      = "${var.name}"
@@ -166,8 +165,7 @@ data "aws_ami" "hashistack" {
 }
 
 module "ssh_keypair_aws" {
-  source = "../ssh-keypair-aws"
-  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
+  source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
 
   # This doesn't set the key_name on aws_instance.bastion when uncommented,
   # there always seems to be 1.) a dirty plan that fails to set the value on apply
@@ -189,11 +187,10 @@ data "template_file" "bastion_init" {
 }
 
 module "bastion_consul_client_sg" {
-  source = "../consul-client-ports-aws"
-  # source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
+  source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
 
   provision   = "${var.bastion_count != "0" ? "true" : "false"}"
-  name        = "${var.name}-consul-client"
+  name        = "${var.name}-bastion-consul-client"
   vpc_id      = "${aws_vpc.main.id}"
   cidr_blocks = ["${var.vpc_cidr}"]
 }
@@ -202,8 +199,12 @@ resource "aws_security_group" "bastion" {
   count = "${var.bastion_count != "0" ? 1 : 0}"
 
   name        = "${var.name}-bastion"
-  description = "Security Group for Bastion hosts"
+  description = "Security Group for ${var.name} Bastion hosts"
   vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.name}-bastion"
+  }
 }
 
 resource "aws_security_group_rule" "ssh" {

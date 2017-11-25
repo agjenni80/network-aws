@@ -30,6 +30,7 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 - `os`: [Optional] Operating System to use (e.g. RHEL or Ubuntu), defaults to "RHEL".
 - `os_version`: [Optional] Operating System version to use (e.g. 7.3 for RHEL or 16.04 for Ubuntu), defaults to "7.3".
 - `bastion_count`: [Optional] Number of bastion hosts to provision across public subnets, defaults to public subnet count.
+- `image_id`: [Optional] AMI to use, defaults to the HashiStack AMI.
 - `instance_profile`: [Optional] AWS instance profile to use, defaults to consul-auto-join-instance-role module.
 - `instance_type`: [Optional] AWS instance type of the bastion host (e.g. m4.large), defaults to "t2.small".
 - `user_data`: [Optional] user_data script to pass in at runtime.

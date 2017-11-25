@@ -60,6 +60,11 @@ variable "bastion_count" {
   description = "Number of bastion hosts to provision across public subnets, defaults to public subnet count."
 }
 
+variable "image_id" {
+  default     = ""
+  description = "AMI to use, defaults to the HashiStack AMI."
+}
+
 variable "instance_profile" {
   default     = ""
   description = "AWS instance profile to use, defaults to consul-auto-join-instance-role module."

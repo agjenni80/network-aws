@@ -233,7 +233,7 @@ resource "aws_instance" "bastion" {
   count = "${var.bastion_count != "-1" ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
   iam_instance_profile = "${var.instance_profile != "" ? var.instance_profile : module.consul_auto_join_instance_role.instance_profile_id}"
-  ami                  = "${data.aws_ami.hashistack.id}"
+  ami                  = "${var.image_id != "" ? var.image_id : data.aws_ami.hashistack.id}"
   instance_type        = "${var.instance_type}"
   key_name             = "${var.ssh_key_name != "" ? var.ssh_key_name : module.ssh_keypair_aws.name}"
   user_data            = "${element(data.template_file.bastion_init.*.rendered, count.index)}"

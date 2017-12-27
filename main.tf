@@ -98,15 +98,15 @@ resource "aws_route_table" "private_subnet" {
 resource "aws_route_table_association" "private" {
   count = "${length(var.vpc_cidrs_private)}"
 
-  subnet_id      = "${element(aws_subnet.private.*.id,count.index)}"
-  route_table_id = "${element(aws_route_table.private_subnet.*.id,count.index)}"
+  subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
+  route_table_id = "${element(aws_route_table.private_subnet.*.id, count.index)}"
 }
 
 module "consul_auto_join_instance_role" {
   source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
 
-  provision = "${var.bastion_count != "0" ? "true" : "false"}"
-  name      = "${var.name}"
+  count = "${var.bastion_count != "0" ? 1 : 0}"
+  name  = "${var.name}"
 }
 
 data "aws_ami" "hashistack" {
@@ -167,13 +167,24 @@ data "aws_ami" "hashistack" {
 module "ssh_keypair_aws" {
   source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
 
-  # This doesn't set the key_name on aws_instance.bastion when uncommented,
+  # This doesn't set the "key_name" attribute on aws_instance.bastion when uncommented,
   # there always seems to be 1.) a dirty plan that fails to set the value on apply
   # or 2.) the plan fails because of a count interpolation error in the tls-private-key
   # module. Commenting this out just creates an ssh_keypair regardless if one is passed in,
   # so not too big of a deal, worst case scenario is you have an un-used keypair.
-  # provision = "${var.ssh_key_name == "" && var.bastion_count != "0" ? "true" : "false"}"
-  name      = "${var.name}"
+
+  # EDIT: Regarding 1: this was resolved using a concat on module.ssh_keypair_aws.name,
+  # regarding 2: When using the "advanced" example and the below argument "count" is uncommented,
+  # the variable ${var.ssh_key_name} is computed, throwing the error
+  # "value of 'count' cannot be computed". As a workaround, we're passing in a static
+  # variable ${var.ssh_key_override} until the below issue is fixed.
+  # https://github.com/hashicorp/terraform/issues/12570#issuecomment-310236691
+  # https://github.com/hashicorp/terraform/issues/4149
+  # https://github.com/hashicorp/terraform/issues/10857
+  # https://github.com/hashicorp/terraform/issues/13980
+  # count = "${var.ssh_key_name == "" && var.bastion_count != "0" ? 1 : 0}" # TODO: Uncomment once issue #4149 is resolved
+  count = "${var.ssh_key_override == "" && var.bastion_count != "0" ? 1 : 0}" # TODO: Remove once issue #4149 is resolved
+  name  = "${var.name}"
 }
 
 data "template_file" "bastion_init" {
@@ -189,7 +200,7 @@ data "template_file" "bastion_init" {
 module "bastion_consul_client_sg" {
   source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
 
-  provision   = "${var.bastion_count != "0" ? "true" : "false"}"
+  count       = "${var.bastion_count != "0" ? 1 : 0}"
   name        = "${var.name}-bastion-consul-client"
   vpc_id      = "${aws_vpc.main.id}"
   cidr_blocks = ["${var.vpc_cidr}"]
@@ -232,15 +243,17 @@ resource "aws_security_group_rule" "egress_public" {
 resource "aws_instance" "bastion" {
   count = "${var.bastion_count != "-1" ? var.bastion_count : length(var.vpc_cidrs_public)}"
 
-  iam_instance_profile = "${var.instance_profile != "" ? var.instance_profile : module.consul_auto_join_instance_role.instance_profile_id}"
+  # Workaround for https://github.com/hashicorp/terraform/issues/11210
+  iam_instance_profile = "${var.instance_profile != "" ? var.instance_profile : element(concat(module.consul_auto_join_instance_role.instance_profile_id, list("")), 0)}" # TODO: Remove concat once issue #11210 is fixed
   ami                  = "${var.image_id != "" ? var.image_id : data.aws_ami.hashistack.id}"
   instance_type        = "${var.instance_type}"
-  key_name             = "${var.ssh_key_name != "" ? var.ssh_key_name : module.ssh_keypair_aws.name}"
+  # Workaround for https://github.com/hashicorp/terraform/issues/11210
+  key_name             = "${var.ssh_key_name != "" ? var.ssh_key_name : element(concat(module.ssh_keypair_aws.name, list("")), 0)}" # TODO: Remove concat once issue #11210 is fixed
   user_data            = "${element(data.template_file.bastion_init.*.rendered, count.index)}"
   subnet_id            = "${element(aws_subnet.public.*.id, count.index)}"
 
   vpc_security_group_ids = [
-    "${module.bastion_consul_client_sg.consul_client_sg_id}",
+    "${element(module.bastion_consul_client_sg.consul_client_sg_id, 0)}",
     "${aws_security_group.bastion.id}",
   ]
 

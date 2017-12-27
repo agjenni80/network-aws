@@ -82,7 +82,12 @@ variable "user_data" {
 
 variable "ssh_key_name" {
   default     = ""
-  description = "AWS key name you will use to access the Bastion host instance(s)."
+  description = "AWS key name you will use to access the Bastion host instance(s), defaults to generating an SSH key for you."
+}
+
+variable "ssh_key_override" {
+  default     = ""
+  description = "Override the default SSH key and pass in your own."
 }
 
 variable "users" {

@@ -34,7 +34,8 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 - `instance_profile`: [Optional] AWS instance profile to use, defaults to consul-auto-join-instance-role module.
 - `instance_type`: [Optional] AWS instance type of the bastion host (e.g. m4.large), defaults to "t2.small".
 - `user_data`: [Optional] user_data script to pass in at runtime.
-- `ssh_key_name`: [Optional] AWS key name you will use to access the Bastion host instance(s).
+- `ssh_key_name`: [Optional] AWS key name you will use to access the Bastion host instance(s), defaults to generating an SSH key for you.
+- `ssh_key_override`: [Optional] Override the default SSH key and pass in your own.
 - `user`: [Optional] Map of SSH users.
 
 ## Outputs

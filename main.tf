@@ -111,7 +111,7 @@ module "consul_auto_join_instance_role" {
 
 data "aws_ami" "hashistack" {
   most_recent = true
-  owners      = ["362381645759"] # hc-se-demos Hashicorp SE Demos Account
+  owners      = ["self"]
 
   filter {
     name   = "tag:System"

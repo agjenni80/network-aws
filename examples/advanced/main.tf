@@ -53,4 +53,5 @@ module "network_aws" {
   user_data         = "${data.template_file.bastion_user_data.rendered}" # Custom user_data
   ssh_key_name      = "${element(module.ssh_keypair_aws_override.name, 0)}"
   ssh_key_override  = "true"
+  tags              = "${var.tags}"
 }

@@ -12,3 +12,4 @@ os                = "Ubuntu" # OS (e.g. RHEL, Ubuntu)
 os_version        = "16.04" # OS Version (e.g. 7.3 for RHEL, 16.04 for Ubuntu)
 bastion_count     = "1" # Number of bastion hosts to provision across public subnets, defaults to public subnet count.
 instance_type     = "t2.small"
+tags              = { "foo" = "bar", "fizz" = "buzz" }

@@ -37,6 +37,7 @@ This module requires a pre-existing AWS SSH key pair for each bastion host.
 - `ssh_key_name`: [Optional] AWS key name you will use to access the Bastion host instance(s), defaults to generating an SSH key for you.
 - `ssh_key_override`: [Optional] Override the default SSH key and pass in your own.
 - `user`: [Optional] Map of SSH users.
+- `tags`: [Optional] Optional map of tags to set on resources, defaults to empty map.
 
 ## Outputs
 

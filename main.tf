@@ -8,9 +8,7 @@ resource "aws_vpc" "main" {
   cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
 
-  tags {
-    Name = "${var.name}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s", var.name)))}"
 }
 
 resource "aws_subnet" "public" {
@@ -21,17 +19,13 @@ resource "aws_subnet" "public" {
   cidr_block              = "${element(var.vpc_cidrs_public, count.index)}"
   map_public_ip_on_launch = true
 
-  tags {
-    Name = "${var.name}-public-${count.index + 1}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-public-%s", var.name, count.index + 1)))}"
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "${var.name}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s", var.name)))}"
 }
 
 resource "aws_route_table" "public" {
@@ -42,9 +36,7 @@ resource "aws_route_table" "public" {
     gateway_id = "${aws_internet_gateway.main.id}"
   }
 
-  tags {
-    Name = "${var.name}-public"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-public", var.name)))}"
 }
 
 resource "aws_route_table_association" "public" {
@@ -75,9 +67,7 @@ resource "aws_subnet" "private" {
   cidr_block              = "${element(var.vpc_cidrs_private, count.index)}"
   map_public_ip_on_launch = false
 
-  tags {
-    Name = "${var.name}-private-${count.index + 1}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-private-%s", var.name, count.index + 1)))}"
 }
 
 resource "aws_route_table" "private_subnet" {
@@ -90,9 +80,7 @@ resource "aws_route_table" "private_subnet" {
     nat_gateway_id = "${element(aws_nat_gateway.nat.*.id,count.index)}"
   }
 
-  tags {
-    Name = "${var.name}-private-subnet-${count.index + 1}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-private-subnet-%s", var.name, count.index + 1)))}"
 }
 
 resource "aws_route_table_association" "private" {
@@ -213,9 +201,7 @@ resource "aws_security_group" "bastion" {
   description = "Security Group for ${var.name} Bastion hosts"
   vpc_id      = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "${var.name}-bastion"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-bastion", var.name)))}"
 }
 
 resource "aws_security_group_rule" "ssh" {
@@ -257,8 +243,5 @@ resource "aws_instance" "bastion" {
     "${aws_security_group.bastion.id}",
   ]
 
-  tags {
-    Name             = "${var.name}-bastion-${count.index + 1}"
-    Consul-Auto-Join = "${var.name}"
-  }
+  tags = "${merge(var.tags, map("Name", format("%s-bastion-%d", var.name, count.index + 1), "Consul-Auto-Join", var.name))}"
 }

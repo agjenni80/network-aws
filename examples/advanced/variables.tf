@@ -12,3 +12,4 @@ variable "os"                { }
 variable "os_version"        { }
 variable "bastion_count"     { }
 variable "instance_type"     { }
+variable "tags"              { type = "map" }

@@ -98,3 +98,9 @@ variable "users" {
 
   description = "Map of SSH users."
 }
+
+variable "tags" {
+  type        = "map"
+  default     = {}
+  description = "Optional map of tags to set on resources, defaults to empty map."
+}

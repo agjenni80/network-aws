@@ -20,7 +20,7 @@ data "aws_ami" "base" {
 
 module "network_aws" {
   source = "../../../network-aws"
-  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/network-aws?ref=f-refactor"
 
   name     = "${var.name}"
   image_id = "${data.aws_ami.base.id}"

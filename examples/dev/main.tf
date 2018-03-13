@@ -1,6 +1,6 @@
 module "network_aws" {
   source = "../../../network-aws"
-  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/network-aws?ref=f-refactor"
 
   name              = "${var.name}"
   vpc_cidrs_public  = "${var.vpc_cidrs_public}"

@@ -91,7 +91,7 @@ resource "aws_route_table_association" "private" {
 }
 
 module "consul_auto_join_instance_role" {
-  source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
+  source = "github.com/hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
 
   count = "${var.bastion_count != "0" ? 1 : 0}"
   name  = "${var.name}"
@@ -153,7 +153,7 @@ data "aws_ami" "hashistack" {
 }
 
 module "ssh_keypair_aws" {
-  source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
+  source = "github.com/hashicorp-modules/ssh-keypair-aws?ref=f-refactor"
 
   # This doesn't set the "key_name" attribute on aws_instance.bastion when uncommented,
   # there always seems to be 1.) a dirty plan that fails to set the value on apply
@@ -186,7 +186,7 @@ data "template_file" "bastion_init" {
 }
 
 module "bastion_consul_client_sg" {
-  source = "git@github.com:hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
+  source = "github.com/hashicorp-modules/consul-client-ports-aws?ref=f-refactor"
 
   count       = "${var.bastion_count != "0" ? 1 : 0}"
   name        = "${var.name}-bastion-consul-client"

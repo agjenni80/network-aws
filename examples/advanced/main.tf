@@ -1,6 +1,6 @@
 module "ssh_keypair_aws_override" {
   source = "../../../ssh-keypair-aws"
-  # source = "git@github.com:hashicorp-modules/ssh-keypair-aws.git?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/ssh-keypair-aws?ref=f-refactor"
 
   name     = "${var.name}-override"
   rsa_bits = "${var.rsa_bits}"
@@ -8,7 +8,7 @@ module "ssh_keypair_aws_override" {
 
 module "consul_auto_join_instance_role_override" {
   source = "../../../consul-auto-join-instance-role-aws"
-  # source = "git@github.com:hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/consul-auto-join-instance-role-aws?ref=f-refactor"
 
   name = "${var.name}-override"
 }
@@ -34,7 +34,7 @@ EOF
 
 module "network_aws" {
   source = "../../../network-aws"
-  # source = "git@github.com:hashicorp-modules/network-aws.git?ref=f-refactor"
+  # source = "github.com/hashicorp-modules/network-aws?ref=f-refactor"
 
   name              = "${var.name}"
   vpc_cidr          = "${var.vpc_cidr}"
